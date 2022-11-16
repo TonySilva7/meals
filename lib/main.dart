@@ -9,7 +9,7 @@ import 'package:meals/screens/settings_screen.dart';
 import 'package:meals/screens/tabs_screen.dart';
 import 'package:meals/utils/app_routes.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -21,6 +21,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   Settings settings = Settings();
   List<Meal> availableMeals = dummyMeals;
+  List<Meal> favoriteMeals = [];
 
   void _filterMeals(Settings settings) {
     setState(() {
@@ -36,6 +37,20 @@ class _MyAppState extends State<MyApp> {
         return !filterGluten && !filterLactose && !filterVegan && !filterVegetarian;
       }).toList();
     });
+  }
+
+  void _toggleFavorite(Meal meal) {
+    setState(() {
+      if (favoriteMeals.contains(meal)) {
+        favoriteMeals.remove(meal);
+      } else {
+        favoriteMeals.add(meal);
+      }
+    });
+  }
+
+  bool _isFavorite(Meal meal) {
+    return favoriteMeals.contains(meal);
   }
 
   @override
@@ -63,9 +78,9 @@ class _MyAppState extends State<MyApp> {
       ),
       // home: const CategoriesScreen(),
       routes: {
-        AppRoutes.home: (ctx) => const TabsScreen(),
+        AppRoutes.home: (ctx) => TabsScreen(favoriteMeals: favoriteMeals),
         AppRoutes.categoriesMeals: (ctx) => CategoriesMealsScreen(meals: availableMeals),
-        AppRoutes.mealDetail: (ctx) => const MealDetailScreen(),
+        AppRoutes.mealDetail: (ctx) => MealDetailScreen(onToggleFavorite: _toggleFavorite, isFavorite: _isFavorite),
         AppRoutes.settings: (ctx) => SettingsScreen(settings: settings, onSettingsChanged: _filterMeals),
       },
       onUnknownRoute: (configs) {
